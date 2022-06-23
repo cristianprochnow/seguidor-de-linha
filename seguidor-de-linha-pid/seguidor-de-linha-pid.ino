@@ -34,11 +34,14 @@
 
 #define RUNTIME 18500                      // Valor para executar o percurso 
 
+#define BASE_POWER 1500
+#define VARIATION_POWER 250
+
 #define KP 50
 #define KI 0 
 #define KD 50
 
-int error = 0, previousError = 0, P, I, D;
+int error = 0, previousError = 0, P, I, D, PID;
 
 void setup()
 {
@@ -51,80 +54,9 @@ void setup()
 void loop()
 {
   followLineMEF();
-  //readSensors();
-  //motorOption('6',255,255);
+  // readSensors();
 }
 
-void motorControl(int speedLeft, int speedRight) {
-  // Função para controle do driver de motor
-
-  // Definições das portas digitais
-  pinMode(PININ1, OUTPUT);
-  pinMode(PININ2, OUTPUT);
-  pinMode(PININ3, OUTPUT);
-  pinMode(PININ4, OUTPUT);
-  pinMode(PINENA, OUTPUT);
-  pinMode(PINENB, OUTPUT);
-
-  // Ajustes motor da esquerda
-  if (speedLeft < 0) {
-    speedLeft = -speedLeft;
-    digitalWrite (PININ3, HIGH);
-    digitalWrite (PININ4, LOW);
-  } else {
-    digitalWrite (PININ3, LOW);
-    digitalWrite (PININ4, HIGH);
-  }
-
-  // Ajustes motor da direita
-  if (speedRight < 0) {
-    speedRight = -speedRight;
-    digitalWrite (PININ1, LOW);
-    digitalWrite (PININ2, HIGH);
-  } else {
-    digitalWrite (PININ1, HIGH);
-    digitalWrite (PININ2, LOW);
-  }
-
-  analogWrite (PINENA, speedLeft);
-  analogWrite (PINENB, speedRight);
-}
-
-void motorOption(char option, int speedLeft, int speedRight) {
-  // Função para controle de motor com pre definições
-  switch (option) {
-    case '6': // Esquerda
-      motorControl(-speedLeft, speedRight);
-      break;
-    case '4': // Direita
-      motorControl(speedLeft, -speedRight);
-      break;
-    case '2': // Trás
-      motorControl(-speedLeft, -speedRight);
-      break;
-    case '8': // Frente
-      motorControl(speedLeft, speedRight);
-      break;
-    case '0': // Parar
-      motorControl(0, 0);
-      break;
-  }
-}
-
-bool motorStop(long runtime, long currentTime) {
-  // Função de parada do robô
-  if (millis() >= (runtime + currentTime)) {
-    motorOption('0', 0, 0);
-    int cont = 0;
-    while (true) {
-      rgbControl(255, 0, 0, 500);
-      rgbControl(0, 0, 0, 500);
-      cont++;
-    }
-    return false;
-  }
-  return true;
-}
 
 void rgbControl(int red, int green, int blue, long rumtime) {
   // Função para controle do led rgb
@@ -267,5 +199,33 @@ void followLineMEF(void) {
     else if (_010000) { error = -3; }
     else if (_110000) { error = -4; }
     else if (_100000) { error = -5; }
+
+    // Definições das portas digitais
+    pinMode(PININ1, OUTPUT);
+    pinMode(PININ2, OUTPUT);
+    pinMode(PININ3, OUTPUT);
+    pinMode(PININ4, OUTPUT);
+    pinMode(PINENA, OUTPUT);
+    pinMode(PINENB, OUTPUT);
+
+    // Ligando motores.
+    digitalWrite (PININ1, HIGH);
+    digitalWrite (PININ2, HIGH);
+    digitalWrite (PININ3, HIGH);
+    digitalWrite (PININ4, HIGH);
+
+    // Calculando PID.
+    P = error;
+    I = I + error;
+    D = error - previousError;
+    PID = (KP * P) + (KI * I) + (KD * D);
+    previousError = error;
+
+    // Definindo valores de potência do motor.
+    int leftMotorSpeed = BASE_POWER - VARIATION_POWER - PID;
+    int rightMotorSpeed = BASE_POWER + VARIATION_POWER - PID;
+  
+    analogWrite(PINENA, leftMotorSpeed);
+    analogWrite(PINENB, rightMotorSpeed);
   }
 }
