@@ -20,7 +20,7 @@
 #define SENSOR6 A5
 
 // Valores de ajustes para o seguidor de linha MIF
-#define TRESHOLD 750                        // Valor de referencia para cor da linha branca
+#define TRESHOLD 600                        // Valor de referencia para cor da linha branca
 #define SPEED0 240                          // Valor de 0 a 255 para velocidade com a seguinte leitura do sensor (0 0 1 1 0 0) 
 #define SPEED1 200                          // Valor de 0 a 255 para velocidade com a seguinte leitura do sensor (0 0 1 1 1 0) 
 
@@ -39,7 +39,7 @@
 
 #define KP 50
 #define KI 0 
-#define KD 50
+#define KD 25
 
 int error = 0, previousError = 0, P, I, D, PID;
 
@@ -93,7 +93,14 @@ void readSensors(void) {
 void followLineMEF(void) {
   // Função para controle do seguidor de linha em modo de maquina de estado finita
   bool flag = true;
-  long currentTime = millis();
+
+  // Definições das portas digitais
+  pinMode(PININ1, OUTPUT);
+  pinMode(PININ2, OUTPUT);
+  pinMode(PININ3, OUTPUT);
+  pinMode(PININ4, OUTPUT);
+  pinMode(PINENA, OUTPUT);
+  pinMode(PINENB, OUTPUT);
 
   while (flag) {
     // Variáveis nomeadas com o mapeamento da combinação de sensores.
@@ -200,20 +207,6 @@ void followLineMEF(void) {
     else if (_110000) { error = -4; }
     else if (_100000) { error = -5; }
 
-    // Definições das portas digitais
-    pinMode(PININ1, OUTPUT);
-    pinMode(PININ2, OUTPUT);
-    pinMode(PININ3, OUTPUT);
-    pinMode(PININ4, OUTPUT);
-    pinMode(PINENA, OUTPUT);
-    pinMode(PINENB, OUTPUT);
-
-    // Ligando motores.
-    digitalWrite (PININ1, HIGH);
-    digitalWrite (PININ2, HIGH);
-    digitalWrite (PININ3, HIGH);
-    digitalWrite (PININ4, HIGH);
-
     // Calculando PID.
     P = error;
     I = I + error;
@@ -224,6 +217,34 @@ void followLineMEF(void) {
     // Definindo valores de potência do motor.
     int leftMotorSpeed = BASE_POWER - VARIATION_POWER - PID;
     int rightMotorSpeed = BASE_POWER + VARIATION_POWER - PID;
+
+    // Ajustes motor da esquerda
+    if (leftMotorSpeed < 0) {
+      leftMotorSpeed = -leftMotorSpeed;
+      digitalWrite (PININ3, HIGH);
+      digitalWrite (PININ4, LOW);
+    } else {
+      digitalWrite (PININ3, LOW);
+      digitalWrite (PININ4, HIGH);
+    }
+  
+    // Ajustes motor da direita
+    if (rightMotorSpeed < 0) {
+      rightMotorSpeed = -rightMotorSpeed;
+      digitalWrite (PININ1, LOW);
+      digitalWrite (PININ2, HIGH);
+    } else {
+      digitalWrite (PININ1, HIGH);
+      digitalWrite (PININ2, LOW);
+    }
+
+    Serial.println(PID);
+
+    // Ligando motores.
+    digitalWrite (PININ1, HIGH);
+    digitalWrite (PININ2, LOW);
+    digitalWrite (PININ3, LOW);
+    digitalWrite (PININ4, HIGH);
   
     analogWrite(PINENA, leftMotorSpeed);
     analogWrite(PINENB, rightMotorSpeed);
