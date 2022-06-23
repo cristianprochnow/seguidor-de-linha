@@ -20,7 +20,7 @@
 #define SENSOR6 A5
 
 // Valores de ajustes para o seguidor de linha MIF
-#define TRESHOLD 600                        // Valor de referencia para cor da linha branca
+#define TRESHOLD 500                        // Valor de referencia para cor da linha branca
 #define SPEED0 240                          // Valor de 0 a 255 para velocidade com a seguinte leitura do sensor (0 0 1 1 0 0) 
 #define SPEED1 200                          // Valor de 0 a 255 para velocidade com a seguinte leitura do sensor (0 0 1 1 1 0) 
 
@@ -35,11 +35,11 @@
 #define RUNTIME 18500                      // Valor para executar o percurso 
 
 #define BASE_POWER 1500
-#define VARIATION_POWER 250
+#define VARIATION_POWER 500
 
 #define KP 50
 #define KI 0 
-#define KD 25
+#define KD 50
 
 int error = 0, previousError = 0, P, I, D, PID;
 
@@ -106,6 +106,96 @@ void followLineMEF(void) {
     // Variáveis nomeadas com o mapeamento da combinação de sensores.
     // Ou seja, se a variável é 000001, então apenas o último sensor (A5)
     // Está com valor.
+    /*
+    bool _000001 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) <= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) >= TRESHOLD
+    );
+    bool _000011 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) <= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) >= TRESHOLD
+      && analogRead(A5) >= TRESHOLD
+    );
+    bool _000010 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) <= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) >= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _000110 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) >= TRESHOLD
+      && analogRead(A3) >= TRESHOLD
+      && analogRead(A4) >= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _000100 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) <= TRESHOLD
+      && analogRead(A3) >= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _001100 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) >= TRESHOLD
+      && analogRead(A3) >= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _001000 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) >= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _011000 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) >= TRESHOLD
+      && analogRead(A2) >= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _010000 = (
+      analogRead(A0) <= TRESHOLD
+      && analogRead(A1) >= TRESHOLD
+      && analogRead(A2) <= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _110000 = (
+      analogRead(A0) >= TRESHOLD
+      && analogRead(A1) >= TRESHOLD
+      && analogRead(A2) >= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    bool _100000 = (
+      analogRead(A0) >= TRESHOLD
+      && analogRead(A1) <= TRESHOLD
+      && analogRead(A2) <= TRESHOLD
+      && analogRead(A3) <= TRESHOLD
+      && analogRead(A4) <= TRESHOLD
+      && analogRead(A5) <= TRESHOLD
+    );
+    */
     bool _000001 = (
       analogRead(A0) <= TRESHOLD
       && analogRead(A1) <= TRESHOLD
@@ -195,6 +285,7 @@ void followLineMEF(void) {
       && analogRead(A5) <= TRESHOLD
     );
     
+    
          if (_000001) { error = 5; }
     else if (_000011) { error = 4; }
     else if (_000010) { error = 3; }
@@ -238,13 +329,6 @@ void followLineMEF(void) {
       digitalWrite (PININ2, LOW);
     }
 
-    Serial.println(PID);
-
-    // Ligando motores.
-    digitalWrite (PININ1, HIGH);
-    digitalWrite (PININ2, LOW);
-    digitalWrite (PININ3, LOW);
-    digitalWrite (PININ4, HIGH);
   
     analogWrite(PINENA, leftMotorSpeed);
     analogWrite(PINENB, rightMotorSpeed);
