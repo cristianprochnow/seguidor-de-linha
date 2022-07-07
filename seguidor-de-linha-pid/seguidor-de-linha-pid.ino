@@ -160,10 +160,6 @@ void followLineMEF(void) {
     if (leftMotorSpeed < 0) {
       leftMotorSpeed *= -1;
     }
-
-    if (rightMotorSpeed < 0) {
-      rightMotorSpeed *= -1;
-    }
   
     analogWrite(PINENA, leftMotorSpeed);
     analogWrite(PINENB, rightMotorSpeed);
