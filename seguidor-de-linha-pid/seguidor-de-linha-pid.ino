@@ -17,18 +17,24 @@
 // Valores de ajustes para o seguidor de linha MIF
 #define TRESHOLD 600                        // Valor de referencia para cor da linha branca
 
-#define BASE_POWER 100
-#define VARIATION_POWER 200 
+#define BASE_POWER 150
+#define VARIATION_POWER 100 
 
 #define KP 50
 #define KI 0 
-#define KD 60
+#define KD 100
 
 int error = 0, previousError = 0, P, I, D, PID;
 
 void setup()
 {
-//  Serial.begin(9600);
+  pinMode(PININ1, OUTPUT);
+  pinMode(PININ2, OUTPUT);
+  pinMode(PININ3, OUTPUT);
+  pinMode(PININ4, OUTPUT);
+  pinMode(PINENA, OUTPUT);
+  pinMode(PINENB, OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop()
@@ -54,94 +60,81 @@ void readSensors(void) {
 }
 
 void followLineMEF(void) {
-  // Definições das portas digitais
-  pinMode(PININ1, OUTPUT);
-  pinMode(PININ2, OUTPUT);
-  pinMode(PININ3, OUTPUT);
-  pinMode(PININ4, OUTPUT);
-  pinMode(PINENA, OUTPUT);
-  pinMode(PINENB, OUTPUT);
-    
-    
+  // Definições das portas digitais 
        if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) >= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) <= TRESHOLD) { error = 5; }
+    && analogRead(SENSOR6) <= TRESHOLD) { error = -5; }
   else if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) >= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) <= TRESHOLD
-    && analogRead(SENSOR6) <= TRESHOLD) { error = 4; }
+    && analogRead(SENSOR6) <= TRESHOLD) { error = -4; }
   else if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) >= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) <= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = 3; }
+    && analogRead(SENSOR6) >= TRESHOLD) { error = -3; }
   else if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) >= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) <= TRESHOLD
     && analogRead(SENSOR5) <= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = 2; }
+    && analogRead(SENSOR6) >= TRESHOLD) { error = -2; }
   else if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) >= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) <= TRESHOLD
-    && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = 1; }
-  else if (analogRead(SENSOR1) >= TRESHOLD
-    && analogRead(SENSOR2) >= TRESHOLD
-    && analogRead(SENSOR3) <= TRESHOLD
-    && analogRead(SENSOR4) <= TRESHOLD
-    && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = 0; }
-  else if (analogRead(SENSOR1) >= TRESHOLD
-    && analogRead(SENSOR2) <= TRESHOLD
-    && analogRead(SENSOR3) <= TRESHOLD
-    && analogRead(SENSOR4) <= TRESHOLD
-    && analogRead(SENSOR5) <= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = 0; }
-  else if (analogRead(SENSOR1) >= TRESHOLD
-    && analogRead(SENSOR2) >= TRESHOLD
-    && analogRead(SENSOR3) <= TRESHOLD
-    && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) >= TRESHOLD
     && analogRead(SENSOR6) >= TRESHOLD) { error = -1; }
   else if (analogRead(SENSOR1) >= TRESHOLD
+    && analogRead(SENSOR2) >= TRESHOLD
+    && analogRead(SENSOR3) <= TRESHOLD
+    && analogRead(SENSOR4) <= TRESHOLD
+    && analogRead(SENSOR5) >= TRESHOLD
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 0; }
+  else if (analogRead(SENSOR1) >= TRESHOLD
+    && analogRead(SENSOR2) <= TRESHOLD
+    && analogRead(SENSOR3) <= TRESHOLD
+    && analogRead(SENSOR4) <= TRESHOLD
+    && analogRead(SENSOR5) <= TRESHOLD
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 0; }
+  else if (analogRead(SENSOR1) >= TRESHOLD
+    && analogRead(SENSOR2) >= TRESHOLD
+    && analogRead(SENSOR3) <= TRESHOLD
+    && analogRead(SENSOR4) >= TRESHOLD
+    && analogRead(SENSOR5) >= TRESHOLD
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 1; }
+  else if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) <= TRESHOLD
     && analogRead(SENSOR3) <= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = -2; }
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 2; }
   else if (analogRead(SENSOR1) >= TRESHOLD
     && analogRead(SENSOR2) <= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = -3; }
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 3; }
   else if (analogRead(SENSOR1) <= TRESHOLD
     && analogRead(SENSOR2) <= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = -4; }
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 4; }
   else if (analogRead(SENSOR1) <= TRESHOLD
     && analogRead(SENSOR2) >= TRESHOLD
     && analogRead(SENSOR3) >= TRESHOLD
     && analogRead(SENSOR4) >= TRESHOLD
     && analogRead(SENSOR5) >= TRESHOLD
-    && analogRead(SENSOR6) >= TRESHOLD) { error = -5; }
+    && analogRead(SENSOR6) >= TRESHOLD) { error = 5; }
 
-    // Calculando PID.
-    P = error;
-    I = I + error;
-    D = error - previousError;
-    PID = (KP * P) + (KI * I) + (KD * D);
-    previousError = error;
+    calculatePID();
 
     // Definindo valores de potência do motor.
     int leftMotorSpeed = BASE_POWER - VARIATION_POWER - PID;
@@ -152,15 +145,20 @@ void followLineMEF(void) {
     digitalWrite (PININ3, LOW);
     digitalWrite (PININ4, HIGH);
 
-    Serial.print(leftMotorSpeed);
-    Serial.print(' ');
-    Serial.print(rightMotorSpeed);
-    Serial.println(' ');
-
     if (leftMotorSpeed < 0) {
-      leftMotorSpeed *= -1;
+      leftMotorSpeed = -leftMotorSpeed;
     }
-  
+    
     analogWrite(PINENA, leftMotorSpeed);
     analogWrite(PINENB, rightMotorSpeed);
+}
+
+void calculatePID()
+{
+  // Calculando PID.
+  P = error;
+  I = I + error;
+  D = error - previousError;
+  PID = (KP * P) + (KI * I) + (KD * D);
+  previousError = error;
 }
